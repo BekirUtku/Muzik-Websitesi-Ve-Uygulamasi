@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="anasayfa.css"/>
+        <title>Müzik Listesi</title>
+        <link rel="stylesheet" href="styles.css">
+        <header>
+        <nav>
+            <h1>AUBE MUSIC</h1>
+            <a href="anasayfaa.html">Anasayfa</a>
+            <a href="sanatcilar.html">Sanatçılar</a>
+            <a href="begenilenler.html">Begenilenler</a>
+            <a href="profil.php">Profil</a>
+            <a href="login.php">Çıkış Yap</a>
+        </nav>
+        <div class="search-bar">
+            <form action="#" method="get">
+                <input type="text" name="search" placeholder="Ara...">
+                <input type="submit" value="Ara">
+            </form>
+        </div>
+        </header>
+    </head>
+<body>
+    <div class="container">
+        <div class="black-box">
+            <div class="song">
+                <img id="songImage" src="sanatçılar/Burak_Bulut.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="burak bulut.html">Burak Bulut</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="black-box">
+            <div class="song">
+                <img id="songImage" src="sanatçılar/Melis_Kar.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="melis kar.html">Melis Kar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="black-box">
+            <div class="song">
+                <img id="songImage" src="sanatçılar/Demet_Akalın.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="demet akalın.html">Demet Akalın</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="black-box">
+            <div class="song">
+                <img id="songImage" src="sanatçılar/mustafa ceceli.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="mustafa ceceli.html">Mustafa Ceceli</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="black-box">
+            <div class="song">
+                <img id="songImage" src="sanatçılar/Mavi_Gri.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="mavi gri.html">Mavi Gri</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="black-box">
+            <div class="song" style="margin-bottom: 100px;">
+                <img id="songImage" src="sanatçılar/Hande_Yener.jpg" alt="song image">
+                <div class="song-details">
+                    <a id="songLink" href="hande yener.html">Hande Yener</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+      
+<div class="music-player">
+  <div class="song-info">
+    <img id="album-cover" src="./kapaklar/Ayrı_Gitme.jpg" alt="Albüm Kapağı">
+    <div class="song-details">
+      <p id="song-title">Şarkı Adı</p>
+      <p id="artist">Madrigal</p>
+    </div>
+  </div>
+  <div class="music">
+    <audio id="audio-player" controls style="width: 1000px;"></audio>
+  </div>
+  <div class="controls">
+    <button id="prev-button">Önceki</button>
+    <button id="play-button">Oynat</button>
+    <button id="next-button">Sonraki</button>
+    <button id="shuffle-button">Karışık Çal</button>
+  </div>
+</div>
+
+  
+  <script src="script.js"></script>
+    
+</body>
+</html>
