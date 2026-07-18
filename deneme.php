@@ -1,53 +1,32 @@
 <?php
+// Tek şarkıyı id'ye göre döndürür ve "gecmis" tablosuna ekler.
+// Tüm sorgular prepared statement.
+require_once __DIR__ . '/db.php';
 
-$servername = "localhost"; // Sunucu adı
-$username = "root"; // Veritabanı kullanıcı adı
-$password = ""; // Veritabanı şifresi
-$database = "spotify"; // Veritabanı adı
+header('Content-Type: application/json; charset=utf-8');
 
-// Veritabanı bağlantısını oluştur
-$conn = new mysqli($servername, $username, $password, $database);
+$index = isset($_GET['index']) ? (int) $_GET['index'] : 1;
 
-// Bağlantıyı kontrol et
-if ($conn->connect_error) {
-    die("Veritabanına bağlanılamadı: " . $conn->connect_error);
-}
+$stmt = $baglan->prepare(
+    'SELECT sarki_adi, sarkici, yol, kapak FROM muzik WHERE id = ?'
+);
+$stmt->bind_param('i', $index);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-// Index değerini al
-$index = isset($_GET['index']) ? intval($_GET['index']) : 1;
+if ($row) {
+    // Dinleme geçmişine ekle.
+    $ins = $baglan->prepare(
+        'INSERT INTO gecmis (sarki_adi, sarkici, yol, kapak) VALUES (?, ?, ?, ?)'
+    );
+    $ins->bind_param('ssss', $row['sarki_adi'], $row['sarkici'], $row['yol'], $row['kapak']);
+    $ins->execute();
+    $ins->close();
 
-$sql = "SELECT sarki_adi, sarkici, yol, kapak FROM muzik WHERE id=$index"; 
-$result = $conn->query($sql);
-
-
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $response = [
-        'sarki_adi' => $row["sarki_adi"],
-        'sarkici' => $row["sarkici"],
-        'yol' => $row["yol"],
-        'kapak' => $row["kapak"]
-        
-    ];
- // Şarkı bilgilerini "gecmis" tablosuna ekleme
- $sarki_adi = $row["sarki_adi"];
- $sarkici = $row["sarkici"];
- $yol = $row["yol"];
- $kapak = $row["kapak"];
-
- $insert_sql = "INSERT INTO gecmis (sarki_adi, sarkici, yol, kapak) VALUES ('$sarki_adi', '$sarkici', '$yol', '$kapak')";
- if ($conn->query($insert_sql) === TRUE) {
-    // Kayıt başarılı
+    echo json_encode($row);
 } else {
-    // Kayıt başarısız
-    echo "Error: " . $insert_sql . "<br>" . $conn->error;
-}
-    echo json_encode($response);
-} else {
-    echo json_encode(['error' => "Veritabanında müzik bulunamadı."]);
+    echo json_encode(['error' => 'Veritabanında müzik bulunamadı.']);
 }
 
-
-
-$conn->close();
-?>
+$baglan->close();

@@ -11,7 +11,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let currentSongIndex = parseInt(localStorage.getItem('currentSongIndex')) || 1;
   let currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
   let isPlaying = localStorage.getItem('isPlaying') === 'true';
-  let isShuffle = localStorage.getItem('isShuffle') === 'true'; 
+  let isShuffle = localStorage.getItem('isShuffle') === 'true';
+
+  // Toplam şarkı sayısı veritabanından dinamik olarak alınır.
+  // (Eskiden sabit 12 idi; yeni şarkılar eklenince güncellenmiyordu.)
+  let totalSongs = 30; // ilk yükleme için makul varsayılan
+  fetch('sarki_sayisi.php')
+    .then(r => r.json())
+    .then(d => {
+      if (d && d.max_id) totalSongs = d.max_id;
+    })
+    .catch(() => { /* varsayılanı kullan */ });
 
   function updateSongInfo(sarki_adi, sarkici, yol, kapak) {
     songTitleElement.textContent = sarki_adi;
@@ -27,45 +37,42 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }, { once: true });
   }
 
-
-  //Müzik çalara bilgi çekme fonksiyonu
+  // Müzik çalara bilgi çekme fonksiyonu
   function fetchSongInfo(index) {
     fetch('deneme.php?index=' + index)
       .then(response => response.json())
       .then(data => {
         if (data.error) {
           console.error(data.error);
-          currentSongIndex = 0;
+          currentSongIndex = 1;
         } else {
           updateSongInfo(data.sarki_adi, data.sarkici, data.yol, data.kapak);
-          addToRecentlyPlayed(data); 
+          addToRecentlyPlayed(data);
           localStorage.setItem('currentSongIndex', currentSongIndex);
         }
       })
       .catch(error => console.error('Hata:', error));
   }
 
-
-//Birdahaki şarkıya geçme fonksiyonu
+  // Bir sonraki şarkıya geçme fonksiyonu (sona gelince başa sarar)
   function playNextSong() {
     if (isShuffle) {
-      currentSongIndex = getRandomIndex(); 
+      currentSongIndex = getRandomIndex();
     } else {
-      currentSongIndex++;
+      currentSongIndex = (currentSongIndex >= totalSongs) ? 1 : currentSongIndex + 1;
     }
-    currentTime = 0; 
+    currentTime = 0;
     fetchSongInfo(currentSongIndex);
   }
 
-  //Önceki Şarkıya geçme fonksiyonu
+  // Önceki şarkıya geçme fonksiyonu (başa gelince sona sarar)
   function playPreviousSong() {
-    currentSongIndex = (currentSongIndex > 1) ? currentSongIndex - 1 : 1;
-    currentTime = 0; 
+    currentSongIndex = (currentSongIndex > 1) ? currentSongIndex - 1 : totalSongs;
+    currentTime = 0;
     fetchSongInfo(currentSongIndex);
   }
 
-
-  //Duraklat ve oynat butonlarının işlevi
+  // Duraklat ve oynat butonlarının işlevi
   function togglePlay() {
     if (audioPlayer.paused) {
       audioPlayer.play();
@@ -92,12 +99,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   }
 
-  // Rastgele bir şarkı indeksi döndüren fonksiyon
+  // Rastgele bir şarkı indeksi döndüren fonksiyon (tüm şarkılar arasından)
   function getRandomIndex() {
-    const maxIndex = 12; 
+    if (totalSongs <= 1) return 1;
     let randomIndex = currentSongIndex;
     while (randomIndex === currentSongIndex) {
-      randomIndex = Math.floor(Math.random() * maxIndex) + 1;
+      randomIndex = Math.floor(Math.random() * totalSongs) + 1;
     }
     return randomIndex;
   }
@@ -107,6 +114,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
       localStorage.setItem('currentTime', audioPlayer.currentTime);
     }
   }, 1000);
+
+  // Şarkı bitince otomatik olarak sonrakine geç
+  audioPlayer.addEventListener('ended', playNextSong);
 
   playButton.addEventListener('click', togglePlay);
   prevButton.addEventListener('click', playPreviousSong);
@@ -123,20 +133,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     playButton.style.backgroundColor = '#1db954';
   }
 
-
-  //Geçmiş kısmına şarkı eklemek için
+  // Geçmiş kısmına şarkı eklemek için
   function addToRecentlyPlayed(song) {
     let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed')) || [];
-    recentlyPlayed = recentlyPlayed.filter(s => s.yol !== song.yol); // 
-    recentlyPlayed.unshift(song); 
-    if (recentlyPlayed.length > 10) recentlyPlayed.pop(); 
+    recentlyPlayed = recentlyPlayed.filter(s => s.yol !== song.yol);
+    recentlyPlayed.unshift(song);
+    if (recentlyPlayed.length > 10) recentlyPlayed.pop();
     localStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
     updateRecentlyPlayed();
   }
 
-  //Her şarkıda geçmişi güncellemek için
+  // Her şarkıda geçmişi güncellemek için
   function updateRecentlyPlayed() {
     const recentlyPlayedContainer = document.querySelector('.spotify-playlists.recently-played .list');
+    if (!recentlyPlayedContainer) return;
     recentlyPlayedContainer.innerHTML = '';
     let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed')) || [];
 
@@ -145,7 +155,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       item.classList.add('item');
       item.innerHTML = `
         <img src="${song.kapak}" />
-        <div class="play" onclick="playMusic('${song.kapak}', '${song.sarki_adi}', '${song.sarkici}', ${song.index})">
+        <div class="play">
           <span class="fa fa-play"></span>
         </div>
         <h4>${song.sarki_adi}</h4>
@@ -157,27 +167,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   updateRecentlyPlayed();
 
-  // Arama formunun gönderilmesini dinleyin
-  searchForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(searchForm);
-    const searchQuery = formData.get('search');
+  // Arama formunun gönderilmesini dinle
+  if (searchForm) {
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(searchForm);
+      const searchQuery = formData.get('search');
 
-    fetch('arama.php?search=' + encodeURIComponent(searchQuery))
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          console.error(data.error);
-        } else {
-          currentSongIndex = data.index; 
-          updateSongInfo(data.sarki_adi, data.sarkici, data.yol, data.kapak);
-          addToRecentlyPlayed(data); 
-          localStorage.setItem('currentSongIndex', currentSongIndex);
-        }
-      })
-      .catch(error => console.error('Hata:', error));
-  });
+      fetch('arama.php?search=' + encodeURIComponent(searchQuery))
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error(data.error);
+          } else {
+            currentSongIndex = data.index;
+            updateSongInfo(data.sarki_adi, data.sarkici, data.yol, data.kapak);
+            addToRecentlyPlayed(data);
+            localStorage.setItem('currentSongIndex', currentSongIndex);
+          }
+        })
+        .catch(error => console.error('Hata:', error));
+    });
+  }
 });
-
-
-

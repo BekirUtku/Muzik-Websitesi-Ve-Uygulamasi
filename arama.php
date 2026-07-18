@@ -1,34 +1,42 @@
 <?php
+// Şarkı arama. Prepared statement + LIKE -> SQL injection'a kapalı.
+require_once __DIR__ . '/db.php';
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "spotify";
+header('Content-Type: application/json; charset=utf-8');
 
-$conn = new mysqli($servername, $username, $password, $database);
+$search = trim($_GET['search'] ?? '');
 
-if ($conn->connect_error) {
-    die("Veritabanına bağlanılamadı: " . $conn->connect_error);
+if ($search === '') {
+    echo json_encode(['error' => 'Arama terimi boş.']);
+    $baglan->close();
+    exit;
 }
 
-$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+// Kısmi eşleşme için LIKE. %/_ karakterlerini kaçır.
+$like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search) . '%';
 
-$sql = "SELECT id, sarki_adi, sarkici, yol, kapak FROM muzik WHERE sarki_adi='$search'";
-$result = $conn->query($sql);
+$stmt = $baglan->prepare(
+    'SELECT id, sarki_adi, sarkici, yol, kapak
+     FROM muzik
+     WHERE sarki_adi LIKE ? OR sarkici LIKE ?
+     ORDER BY id
+     LIMIT 1'
+);
+$stmt->bind_param('ss', $like, $like);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $response = [
-        'index' => $row["id"],
-        'sarki_adi' => $row["sarki_adi"],
-        'sarkici' => $row["sarkici"],
-        'yol' => $row["yol"],
-        'kapak' => $row["kapak"]
-    ];
-    echo json_encode($response);
+if ($row) {
+    echo json_encode([
+        'index'     => $row['id'],
+        'sarki_adi' => $row['sarki_adi'],
+        'sarkici'   => $row['sarkici'],
+        'yol'       => $row['yol'],
+        'kapak'     => $row['kapak'],
+    ]);
 } else {
-    echo json_encode(['error' => "Arama sonucu bulunamadı."]);
+    echo json_encode(['error' => 'Arama sonucu bulunamadı.']);
 }
 
-$conn->close();
-?>
+$baglan->close();

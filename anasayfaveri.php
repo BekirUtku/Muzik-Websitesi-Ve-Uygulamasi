@@ -1,27 +1,15 @@
 <?php
-$servername = "localhost"; // Sunucu adı
-$username = "root"; // Veritabanı kullanıcı adı
-$password = ""; // Veritabanı şifresi
-$database = "spotify"; // Veritabanı adı
+// Anasayfadaki tüm şarkıları JSON döndürür (kullanıcı girdisi yok).
+require_once __DIR__ . '/db.php';
 
-// Veritabanı bağlantısını oluştur
-$conn = new mysqli($servername, $username, $password, $database);
+header('Content-Type: application/json; charset=utf-8');
 
-// Bağlantıyı kontrol et
-if ($conn->connect_error) {
-    die("Veritabanına bağlanılamadı: " . $conn->connect_error);
-}
+$result = $baglan->query('SELECT id, sarki_adi, sarkici, yol, kapak FROM muzik ORDER BY id');
 
-// SQL sorgusuyla müzik verilerini çek
-$sql = "SELECT sarki_adi, sarkici, yol, kapak FROM muzik";
-$result = $conn->query($sql);
-
-// Verileri JSON formatında dön
-$rows = array();
+$rows = [];
 while ($row = $result->fetch_assoc()) {
     $rows[] = $row;
 }
 echo json_encode($rows);
 
-$conn->close();
-?>
+$baglan->close();
