@@ -260,3 +260,48 @@ a { color: inherit; text-decoration: none; }
 .auth-links a { color: var(--muted); }
 .auth-links a:hover { color: var(--text); }
 .auth-error { background: rgba(255,77,109,.12); border: 1px solid rgba(255,77,109,.4); color: #ff8ba0; padding: 10px 12px; border-radius: 10px; font-size: 13px; text-align: center; margin-bottom: 16px; }
+
+/* ---------- Butonlar ---------- */
+.btn-ghost {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  padding: 10px 18px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px;
+  display: inline-flex; align-items: center; gap: 8px; transition: .2s;
+}
+.btn-ghost:hover { background: #262c3d; border-color: #39415a; }
+.btn-row { display: flex; gap: 10px; margin-top: 8px; }
+.btn-row .btn-primary, .btn-row .btn-ghost { margin-top: 0; flex: 1; text-align: center; justify-content: center; }
+
+.profile-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+
+/* ---------- İstatistikler ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 22px; }
+.stat {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px; display: flex; align-items: center; gap: 14px;
+}
+.stat .ic { width: 42px; height: 42px; border-radius: 11px; background: var(--panel-2); display: grid; place-items: center; color: var(--accent); flex: 0 0 auto; }
+.stat .num { font-size: 22px; font-weight: 700; line-height: 1; }
+.stat .lbl { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(4,6,12,.66); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; padding: 24px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  width: 100%; max-width: 460px; max-height: 90vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 18px; padding: 26px 26px 24px; box-shadow: var(--shadow);
+}
+.modal .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.modal h3 { font-size: 19px; }
+.modal .x { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; }
+.modal .x:hover { color: var(--text); }
+.modal .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.modal .divider { height: 1px; background: var(--border); margin: 18px 0 16px; }
+.modal .small { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.form-msg { font-size: 13px; text-align: center; margin-bottom: 12px; padding: 9px 12px; border-radius: 10px; display: none; }
+.form-msg.err { display: block; background: rgba(255,77,109,.12); border: 1px solid rgba(255,77,109,.4); color: #ff8ba0; }
+.form-msg.ok  { display: block; background: rgba(29,185,84,.12); border: 1px solid rgba(29,185,84,.4); color: #58e08b; }
