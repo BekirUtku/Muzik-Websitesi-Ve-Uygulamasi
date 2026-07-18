@@ -1,25 +1,31 @@
 <?php
-include '../config/database.php';
+// dashboard/get_music.php
+// DÜZELTME: eski hali "music" tablosunu İngilizce kolonlarla (artist,
+// song_title, file_path) sorguluyordu -> uygulamanın geri kalanı "muzik"
+// tablosunu Türkçe kolonlarla kullanıyor. Şema ile uyumlu hale getirildi.
 
-// Her zaman JSON döndüreceğimiz için Content-Type başlığını ayarla
-header('Content-Type: application/json');
+require_once __DIR__ . '/config/database.php';   // $db değişkenini sağlar
+
+header('Content-Type: application/json; charset=utf-8');
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $music_id = (int) $_GET['id'];
 
-    $stmt = $db->prepare("SELECT id, artist, song_title, album, genre, picture, file_path FROM music WHERE id = ?");
-    $stmt->bind_param("i", $music_id);
+    $stmt = $db->prepare(
+        'SELECT id, sarkici, sarki_adi, album, turu, kapak, yol
+         FROM muzik
+         WHERE id = ?'
+    );
+    $stmt->bind_param('i', $music_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $music = $result->fetch_assoc();
+    $music = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
     if ($music) {
         echo json_encode($music);
     } else {
         echo json_encode(['error' => 'Müzik bulunamadı']);
     }
-
-    $stmt->close();
 } else {
     echo json_encode(['error' => 'Geçersiz istek']);
 }
