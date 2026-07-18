@@ -24,6 +24,61 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const byId = (id) => SONGS.find(s => String(s.id) === String(id));
 
+  // Elimizdeki gerçek sanatçı fotoğrafları (varsa kullanılır)
+  const ARTIST_PHOTO = {
+    'burak bulut': 'sanatcilar/Burak_Bulut.jpg',
+    'melis kar': 'sanatcilar/Melis_Kar.jpg',
+    'mustafa ceceli': 'sanatcilar/mustafa ceceli.jpg',
+    'mavi gri': 'sanatcilar/Mavi_Gri.jpg',
+    'hande yener': 'sanatcilar/Hande_Yener.jpg',
+    'buray': 'sanatcilar/Buray.jpg',
+    'melis fis': 'sanatcilar/Melis_Fis.jpg'
+  };
+
+  // "A & B", "A x B", "A feat. B", "A, B" -> ['A','B'] (Bilinmeyen atılır)
+  function splitArtists(s) {
+    if (!s) return [];
+    return s.split(/\s*&\s*|\s*,\s*|\s+feat\.?\s+|\s+ft\.?\s+|\s+[xX]\s+/)
+      .map(a => a.trim())
+      .filter(a => a && a.toLowerCase() !== 'bilinmeyen');
+  }
+
+  // data-artist (statik) veya ?ad= (dinamik) sanatçı sayfası filtresi
+  function getArtistFilter() {
+    const d = document.body.getAttribute('data-artist');
+    if (d) return d;
+    const q = new URLSearchParams(location.search).get('ad');
+    return q ? q : '';
+  }
+
+  function artistPhoto(name, fallbackCover) {
+    return ARTIST_PHOTO[String(name).toLowerCase()] || fallbackCover || 'kapaklar/Ayrı_Gitme.jpg';
+  }
+
+  // Sanatçılar sayfası: veritabanındaki şarkılardan sanatçı listesini üret
+  function renderArtists() {
+    const cont = $('#artist-list');
+    if (!cont) return;
+    const map = new Map();
+    SONGS.forEach(s => splitArtists(s.sarkici).forEach(name => {
+      if (!map.has(name)) map.set(name, { name, cover: s.kapak, count: 0 });
+      map.get(name).count++;
+    }));
+    const arr = [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'));
+    cont.innerHTML = '';
+    arr.forEach(a => {
+      const card = document.createElement('a');
+      card.className = 'artist-card';
+      card.href = 'sanatci.html?ad=' + encodeURIComponent(a.name);
+      card.innerHTML =
+        '<img class="avatar" src="' + esc(artistPhoto(a.name, a.cover)) + '" alt="" loading="lazy">' +
+        '<div class="name">' + esc(a.name) + '</div>' +
+        '<div class="role">' + a.count + ' şarkı</div>';
+      cont.appendChild(card);
+    });
+    const c = $('#artist-count'); if (c) c.textContent = arr.length + ' sanatçı';
+  }
+
   // ---- localStorage yardımcıları ----
   const getLikes = () => { try { return JSON.parse(localStorage.getItem(LIKES_KEY)) || []; } catch (e) { return []; } };
   const setLikes = (a) => localStorage.setItem(LIKES_KEY, JSON.stringify(a));
@@ -216,10 +271,19 @@
       .then(data => {
         SONGS = Array.isArray(data) ? data : [];
         // Sanatçı sayfası ise sadece o sanatçının şarkılarını göster.
-        const af = document.body.getAttribute('data-artist');
+        const af = getArtistFilter();
         const list = af
           ? SONGS.filter(s => (s.sarkici || '').toLowerCase().includes(af.toLowerCase()))
           : SONGS;
+
+        // Sanatçı sayfası başlığı/foto (jenerik sanatci.html için)
+        if (af) {
+          const nm = $('#artist-name'); if (nm) nm.textContent = af;
+          const av = $('#artist-avatar'); if (av) av.src = artistPhoto(af, list[0] && list[0].kapak);
+          document.title = af + ' — AUBE MUSIC';
+        }
+
+        renderArtists();   // Sanatçılar listesi (varsa)
         renderTrend(list);
         renderRecent();
         renderLiked();

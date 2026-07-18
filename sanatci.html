@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sanatçılar — AUBE MUSIC</title>
+  <title>Sanatçı — AUBE MUSIC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="aube.css">
@@ -22,7 +22,7 @@
       <a href="sanatcilar.html" class="active">Sanatçılar</a>
       <a href="begenilenler.html">Beğenilenler</a>
       <a href="profil.php">Profil</a>
-      <a href="login.php">Çıkış Yap</a>
+      <a href="cikis.php">Çıkış Yap</a>
     </div>
     <form class="search" id="search-form" action="#" method="get">
       <span id="search-icon"></span>
@@ -30,20 +30,23 @@
     </form>
   </nav>
 
-  <section class="hero">
-    <h1>Sanatçılar</h1>
-    <p>Favori sanatçına tıkla, şarkılarına göz at.</p>
+  <section class="hero" style="display:flex;align-items:center;gap:24px;">
+    <img id="artist-avatar" src="kapaklar/Ayrı_Gitme.jpg" alt="" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);flex:0 0 auto;">
+    <div>
+      <p style="color:var(--muted);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Sanatçı</p>
+      <h1 id="artist-name">Sanatçı</h1>
+      <a href="sanatcilar.html" style="color:var(--muted);font-size:13px;">&larr; Tüm sanatçılar</a>
+    </div>
   </section>
 
   <section class="section">
     <div class="section-head">
-      <h2>Tüm Sanatçılar</h2>
-      <span class="count" id="artist-count"></span>
+      <h2>Şarkıları</h2>
+      <span class="count" id="trend-count"></span>
     </div>
-    <div class="artist-grid" id="artist-list"></div>
+    <div class="grid" id="trend-grid"></div>
   </section>
 
-  <!-- Çalar -->
   <div class="player">
     <div class="now">
       <img id="p-cover" src="kapaklar/Ayrı_Gitme.jpg" alt="">
