@@ -78,7 +78,12 @@
     songs.forEach(s => container.appendChild(makeCard(s)));
   }
 
-  function renderTrend(list) { fillGrid($('#trend-grid'), list || SONGS, 'Şarkı bulunamadı.'); updateCounts(); }
+  function renderTrend(list) {
+    const l = list || SONGS;
+    fillGrid($('#trend-grid'), l, 'Bu sanatçının şu an listede şarkısı yok.');
+    const t = $('#trend-count'); if (t) t.textContent = l.length + ' şarkı';
+    const lc = $('#liked-count'); if (lc) lc.textContent = getLikes().length + ' şarkı';
+  }
   function renderRecent() {
     const songs = getRecent().map(byId).filter(Boolean);
     fillGrid($('#recent-grid'), songs, 'Henüz şarkı dinlemedin. Bir kapağa tıkla, burada birikssin.');
@@ -210,7 +215,12 @@
       .then(r => r.json())
       .then(data => {
         SONGS = Array.isArray(data) ? data : [];
-        renderTrend(SONGS);
+        // Sanatçı sayfası ise sadece o sanatçının şarkılarını göster.
+        const af = document.body.getAttribute('data-artist');
+        const list = af
+          ? SONGS.filter(s => (s.sarkici || '').toLowerCase().includes(af.toLowerCase()))
+          : SONGS;
+        renderTrend(list);
         renderRecent();
         renderLiked();
       })
