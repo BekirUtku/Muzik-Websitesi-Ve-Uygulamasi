@@ -118,6 +118,46 @@ document.addEventListener('DOMContentLoaded', (event) => {
   // Şarkı bitince otomatik olarak sonrakine geç
   audioPlayer.addEventListener('ended', playNextSong);
 
+  // Bir kutuya (Trend / Son Dinlenilenler / Beğenilenler) tıklayınca çal.
+  // Dinamik eklenen kutular için olay delegasyonu (document üzerinde).
+  function startPlaybackUI() {
+    isPlaying = true;
+    localStorage.setItem('isPlaying', true);
+    playButton.textContent = 'Duraklat';
+    playButton.style.backgroundColor = '#bd3200';
+  }
+
+  document.addEventListener('click', function(e) {
+    const item = e.target.closest('.item');
+    if (!item) return;
+
+    startPlaybackUI();
+    currentTime = 0;
+
+    const idx = item.getAttribute('data-index');
+    if (idx) {
+      // Veritabanı id'si bilinen kutular (Trend, geçmiş)
+      currentSongIndex = parseInt(idx);
+      fetchSongInfo(currentSongIndex);
+      return;
+    }
+
+    // Statik kutular (Beğenilenler / ilk yüklemedeki HTML): başlıktan ara
+    const h4 = item.querySelector('h4');
+    if (!h4) return;
+    const title = h4.textContent.replace(/\?/g, '').trim();
+    fetch('arama.php?search=' + encodeURIComponent(title))
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { console.error(data.error); return; }
+        currentSongIndex = data.index;
+        updateSongInfo(data.sarki_adi, data.sarkici, data.yol, data.kapak);
+        addToRecentlyPlayed(data);
+        localStorage.setItem('currentSongIndex', currentSongIndex);
+      })
+      .catch(err => console.error('Hata:', err));
+  });
+
   playButton.addEventListener('click', togglePlay);
   prevButton.addEventListener('click', playPreviousSong);
   nextButton.addEventListener('click', playNextSong);
@@ -135,6 +175,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   // Geçmiş kısmına şarkı eklemek için
   function addToRecentlyPlayed(song) {
+    // Farklı uçlar id'yi 'id' veya 'index' olarak döndürür; tekilleştir.
+    song.__idx = song.id ?? song.index ?? '';
     let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed')) || [];
     recentlyPlayed = recentlyPlayed.filter(s => s.yol !== song.yol);
     recentlyPlayed.unshift(song);
@@ -153,6 +195,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     recentlyPlayed.forEach(song => {
       const item = document.createElement('div');
       item.classList.add('item');
+      if (song.__idx) item.setAttribute('data-index', song.__idx);
+      item.style.cursor = 'pointer';
       item.innerHTML = `
         <img src="${song.kapak}" />
         <div class="play">

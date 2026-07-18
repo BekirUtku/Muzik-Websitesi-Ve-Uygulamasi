@@ -3,11 +3,15 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch('anasayfaveri.php')
         .then(response => response.json())
         .then(data => {
-            // Müzik listesini güncelle
+            // "Trend" listesini doldur
             const playlistContainer = document.querySelector('.spotify-playlists .list');
+            if (!playlistContainer) return;
             data.forEach(song => {
                 const item = document.createElement('div');
                 item.classList.add('item');
+                // Tıklanınca script.js bu id ile şarkıyı çalar.
+                item.setAttribute('data-index', song.id);
+                item.style.cursor = 'pointer';
                 item.innerHTML = `
                     <img src="${song.kapak}" />
                     <div class="play">

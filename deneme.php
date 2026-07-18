@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 $index = isset($_GET['index']) ? (int) $_GET['index'] : 1;
 
 $stmt = $baglan->prepare(
-    'SELECT sarki_adi, sarkici, yol, kapak FROM muzik WHERE id = ?'
+    'SELECT id, sarki_adi, sarkici, yol, kapak FROM muzik WHERE id = ?'
 );
 $stmt->bind_param('i', $index);
 $stmt->execute();
