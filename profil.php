@@ -1,125 +1,103 @@
+<?php
+session_start();
+$girisli = isset($_SESSION['kullanici_id']);
+$kullanici_adi = $girisli ? $_SESSION['kullanici_adi'] : '';
+$ad     = $girisli ? $_SESSION['ad']    : '';
+$soyad  = $girisli ? $_SESSION['soyad'] : '';
+$email  = $girisli ? $_SESSION['email'] : '';
+$bashar = $girisli ? mb_strtoupper(mb_substr($kullanici_adi, 0, 1, 'UTF-8'), 'UTF-8') : '?';
+function g($s){ return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+?>
 <!DOCTYPE html>
-<html>
-
+<html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="anasayfa.css" />
-    <style>
-        /* Arka plan rengi */
-        body {
-            background-color: #f2f2f2;
-        }
-
-        /* Ortadaki alanın stili */
-        .orta {
-            margin: auto;
-            width: 80%;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Kullanıcı bilgilerinin stil */
-        .kullanici-bilgileri {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        /* Kullanıcı bilgileri içeriklerinin stil */
-        .kullanici-bilgi {
-            margin-bottom: 10px;
-        }
-
-        /* Başlık ve menü stil */
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil — AUBE MUSIC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="aube.css">
 </head>
-
 <body>
-    <header>
-        <nav>
-            <h1>AUBE MUSIC</h1>
-            <a href="anasayfaa.html">Anasayfa</a>
-            <a href="sanatcilar.html">Sanatçılar</a>
-            <a href="begenilenler.html">Begenilenler</a>
-            <a href="profil.php">Profil</a>
-            <a href="login.php">Çıkış Yap</a>
-        </nav>
-        <div class="search-bar">
-            <form action="#" method="get">
-                <input type="text" name="search" placeholder="Ara...">
-                <input type="submit" value="Ara">
-            </form>
-        </div>
-    </header>
 
-    <div class="orta">
-        <div class="kullanici-bilgileri">
-            <?php
-            session_start(); 
-
-            // Oturumda kullanıcı bilgilerini kontrol et
-            if (isset($_SESSION['kullanici_id'])) {
-                $kullanici_id = $_SESSION['kullanici_id'];
-                $kullanici_adi = $_SESSION['kullanici_adi'];
-                $ad = $_SESSION['ad'];
-                $soyad = $_SESSION['soyad'];
-                $email = $_SESSION['email'];
-
-                // Kullanıcı bilgilerini HTML içeriğini oluştur
-                echo "<div class='kullanici-bilgi'>Kullanıcı Adı: $kullanici_adi</div>";
-                echo "<div class='kullanici-bilgi'>Ad: $ad</div>";
-                echo "<div class='kullanici-bilgi'>Soyad: $soyad</div>";
-                echo "<div class='kullanici-bilgi'>E-Posta: $email</div>";
-            } else {
-                // Oturum açık değilse, giriş yapmamıştır, bu nedenle bir hata mesajı gösterir
-                echo "<p>Oturum açmadınız. Lütfen giriş yapın.</p>";
-            }
-            ?>
-        </div>
+  <nav class="navbar">
+    <a class="brand" href="anasayfaa.html">
+      <span class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.6A4 4 0 1 0 14 17V7h4V3z"/></svg>
+      </span>
+      AUBE MUSIC
+    </a>
+    <div class="nav-links">
+      <a href="anasayfaa.html">Anasayfa</a>
+      <a href="sanatcilar.html">Sanatçılar</a>
+      <a href="begenilenler.html">Beğenilenler</a>
+      <a href="profil.php" class="active">Profil</a>
+      <a href="cikis.php">Çıkış Yap</a>
     </div>
+    <form class="search" id="search-form" action="#" method="get">
+      <span id="search-icon"></span>
+      <input type="text" name="search" placeholder="Şarkı veya sanatçı ara...">
+    </form>
+  </nav>
 
-
-
-
-
-    <div class="music-player">
-  <div class="song-info">
-    <img id="album-cover" src="./kapaklar/Ayrı_Gitme.jpg" alt="Albüm Kapağı">
-    <div class="song-details">
-      <p id="song-title">Şarkı Adı</p>
-      <p id="artist">Madrigal</p>
+  <section class="section" style="margin-top:26px">
+  <?php if ($girisli): ?>
+    <div class="profile-card">
+      <div class="pic"><?= g($bashar) ?></div>
+      <div class="who">
+        <div class="uname"><?= g($ad . ' ' . $soyad) ?></div>
+        <div class="mail">@<?= g($kullanici_adi) ?> · <?= g($email) ?></div>
+      </div>
     </div>
-  </div>
-  <div class="music">
-    <audio id="audio-player" controls style="width: 1000px;"></audio>
-  </div>
-  <div class="controls">
-    <button id="prev-button">Önceki</button>
-    <button id="play-button">Oynat</button>
-    <button id="next-button">Sonraki</button>
-    <button id="shuffle-button">Karışık Çal</button>
-  </div>
-</div>
+    <div class="profile-rows">
+      <div class="row"><div class="k">Kullanıcı Adı</div><div class="v"><?= g($kullanici_adi) ?></div></div>
+      <div class="row"><div class="k">Ad</div><div class="v"><?= g($ad) ?></div></div>
+      <div class="row"><div class="k">Soyad</div><div class="v"><?= g($soyad) ?></div></div>
+      <div class="row"><div class="k">E-Posta</div><div class="v"><?= g($email) ?></div></div>
+    </div>
+  <?php else: ?>
+    <div class="notice">Oturum açmadınız. Lütfen <a href="login.php">giriş yapın</a>.</div>
+  <?php endif; ?>
+  </section>
 
+  <?php if ($girisli): ?>
+  <section class="section">
+    <div class="section-head"><h2>Beğendiklerin</h2><span class="count" id="liked-count"></span></div>
+    <div class="grid" id="liked-grid"></div>
+  </section>
+  <section class="section">
+    <div class="section-head"><h2>Son Dinlediklerin</h2></div>
+    <div class="grid" id="recent-grid"></div>
+  </section>
+  <?php endif; ?>
 
-<script src="script.js"></script>
+  <!-- Çalar -->
+  <div class="player">
+    <div class="now">
+      <img id="p-cover" src="kapaklar/Ayrı_Gitme.jpg" alt="">
+      <div style="min-width:0">
+        <div class="t" id="p-title">Bir şarkı seç</div>
+        <div class="a" id="p-artist">AUBE MUSIC</div>
+      </div>
+      <button class="plike" id="p-like" title="Beğen"></button>
+    </div>
+    <div class="center">
+      <div class="buttons">
+        <button id="p-shuffle" class="sh" title="Karışık"></button>
+        <button id="p-prev" title="Önceki"></button>
+        <button id="p-play" class="play" title="Oynat/Duraklat"></button>
+        <button id="p-next" title="Sonraki"></button>
+      </div>
+      <div class="progress">
+        <span class="time" id="p-cur">0:00</span>
+        <div class="bar" id="p-bar"><div class="fill" id="p-fill"></div></div>
+        <span class="time" id="p-dur">0:00</span>
+      </div>
+    </div>
+    <div class="right"></div>
+  </div>
 
+  <audio id="audio-player" preload="metadata"></audio>
+  <script src="app.js"></script>
 </body>
-
 </html>

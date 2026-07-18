@@ -182,3 +182,81 @@ a { color: inherit; text-decoration: none; }
   .player .right { display: none; }
   .progress { width: 40vw; }
 }
+
+/* ---------- Sanatçılar ---------- */
+.artist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+}
+.artist-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 14px;
+  text-align: center;
+  transition: transform .18s, background .18s, border-color .18s;
+}
+.artist-card:hover { background: var(--panel-2); transform: translateY(-4px); border-color: #313850; }
+.artist-card .avatar {
+  width: 120px; height: 120px; border-radius: 50%;
+  object-fit: cover; margin: 0 auto 14px;
+  border: 3px solid var(--border); display: block;
+}
+.artist-card:hover .avatar { border-color: var(--accent); }
+.artist-card .name { font-weight: 600; font-size: 15px; }
+.artist-card .role { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+/* ---------- Profil ---------- */
+.profile-card {
+  display: flex; align-items: center; gap: 22px;
+  background: linear-gradient(120deg, rgba(29,185,84,.16), rgba(55,120,214,.14)), var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 26px 30px; box-shadow: var(--shadow);
+}
+.profile-card .pic {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #37d67a);
+  display: grid; place-items: center; color: #04120a;
+  font-size: 38px; font-weight: 700; flex: 0 0 auto;
+}
+.profile-card .who .uname { font-size: 24px; font-weight: 700; }
+.profile-card .who .mail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.profile-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 22px; }
+.profile-rows .row {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+}
+.profile-rows .row .k { color: var(--muted); font-size: 12px; }
+.profile-rows .row .v { font-size: 16px; font-weight: 600; margin-top: 4px; }
+.notice { color: var(--muted); background: var(--panel); border: 1px dashed var(--border); border-radius: 12px; padding: 22px; text-align: center; }
+.notice a { color: var(--accent); font-weight: 600; }
+
+/* ---------- Giriş / Kayıt ---------- */
+.auth-wrap { min-height: 100vh; display: grid; place-items: center; padding: 30px; }
+.auth-card {
+  width: 100%; max-width: 400px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 20px; padding: 34px 30px; box-shadow: var(--shadow);
+}
+.auth-card .brand { justify-content: center; margin-bottom: 6px; }
+.auth-card h2 { text-align: center; font-size: 22px; margin-bottom: 4px; }
+.auth-card .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+.field { position: relative; margin-bottom: 16px; }
+.field input {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text); padding: 13px 14px; border-radius: 11px; outline: none;
+  font-size: 14px; transition: .2s;
+}
+.field input:focus { border-color: var(--accent); }
+.field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.btn-primary {
+  width: 100%; border: none; cursor: pointer;
+  background: var(--accent); color: #04120a; font-weight: 600; font-size: 15px;
+  padding: 13px; border-radius: 11px; transition: .2s; margin-top: 4px;
+}
+.btn-primary:hover { background: var(--accent-2); }
+.auth-links { display: flex; justify-content: space-between; margin-top: 16px; font-size: 13px; }
+.auth-links a { color: var(--muted); }
+.auth-links a:hover { color: var(--text); }
+.auth-error { background: rgba(255,77,109,.12); border: 1px solid rgba(255,77,109,.4); color: #ff8ba0; padding: 10px 12px; border-radius: 10px; font-size: 13px; text-align: center; margin-bottom: 16px; }

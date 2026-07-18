@@ -18,7 +18,6 @@ if (isset($_POST['Kayit'])) {
     } elseif (strlen($sifre) < 6) {
         $hata = 'Şifre en az 6 karakter olmalıdır.';
     } else {
-        // Kullanıcı adı / e-posta zaten var mı?
         $stmt = $baglan->prepare(
             'SELECT id FROM kullanicilar WHERE kullanici_adi = ? OR email = ? LIMIT 1'
         );
@@ -30,16 +29,12 @@ if (isset($_POST['Kayit'])) {
         if ($mevcut) {
             $hata = 'Bu kullanıcı adı veya e-posta zaten kayıtlı.';
         } else {
-            // Şifreyi HASH'le (asla düz metin saklama).
             $sifre_hash = password_hash($sifre, PASSWORD_DEFAULT);
-
-            // Prepared statement ile ekle.
             $stmt = $baglan->prepare(
                 'INSERT INTO kullanicilar (email, sifre, kullanici_adi, ad, soyad)
                  VALUES (?, ?, ?, ?, ?)'
             );
             $stmt->bind_param('sssss', $email, $sifre_hash, $k_adi, $ad, $soyad);
-
             if ($stmt->execute()) {
                 $stmt->close();
                 header('Location: login.php');
@@ -56,47 +51,55 @@ if (isset($_POST['Kayit'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kayıt Ol</title>
-  <link rel="stylesheet" href="./login.css">
+  <title>Kayıt Ol — AUBE MUSIC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="aube.css">
 </head>
 <body>
-  <section>
-    <div class="signin">
-      <div class="content">
-        <h2>Kayıt Ol</h2>
-
-        <?php if ($hata !== ''): ?>
-          <p style="color:#e33;text-align:center;"><?= htmlspecialchars($hata) ?></p>
-        <?php endif; ?>
-
-        <div class="form">
-          <form method="post" action="">
-            <div class="inputBox" style="margin-bottom: 30px;">
-              <input type="text" name="ad" required> <i>Ad</i>
-            </div>
-            <div class="inputBox" style="margin-bottom: 30px;">
-              <input type="text" name="soyad" required> <i>Soyad</i>
-            </div>
-            <div class="inputBox" style="margin-bottom: 30px;">
-              <input type="email" name="email" required> <i>E-Mail</i>
-            </div>
-            <div class="inputBox" style="margin-bottom: 30px;">
-              <input type="text" name="k_adi" required> <i>Kullanıcı Adı</i>
-            </div>
-            <div class="inputBox" style="margin-bottom: 30px;">
-              <input type="password" name="sifre" required> <i>Şifre</i>
-            </div>
-            <div class="links" style="margin-bottom: 30px;">
-              <a href="#">Şifremi Unuttum</a>
-              <a href="login.php">Giriş Yap</a>
-            </div>
-            <div class="inputBox">
-              <input type="submit" name="Kayit" value="Kayıt Ol">
-            </div>
-          </form>
-        </div>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand">
+        <span class="logo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.6A4 4 0 1 0 14 17V7h4V3z"/></svg>
+        </span>
+        AUBE MUSIC
       </div>
+      <h2>Kayıt Ol</h2>
+      <p class="sub">Ücretsiz hesap oluştur, müziğe başla.</p>
+
+      <?php if ($hata !== ''): ?>
+        <div class="auth-error"><?= htmlspecialchars($hata) ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="">
+        <div class="field">
+          <label>Ad</label>
+          <input type="text" name="ad" placeholder="Adın" required>
+        </div>
+        <div class="field">
+          <label>Soyad</label>
+          <input type="text" name="soyad" placeholder="Soyadın" required>
+        </div>
+        <div class="field">
+          <label>E-Posta</label>
+          <input type="email" name="email" placeholder="ornek@mail.com" required>
+        </div>
+        <div class="field">
+          <label>Kullanıcı Adı</label>
+          <input type="text" name="k_adi" placeholder="kullanıcı adın" required>
+        </div>
+        <div class="field">
+          <label>Şifre</label>
+          <input type="password" name="sifre" placeholder="en az 6 karakter" required>
+        </div>
+        <button class="btn-primary" type="submit" name="Kayit">Kayıt Ol</button>
+        <div class="auth-links">
+          <a href="#">Şifremi Unuttum</a>
+          <a href="login.php">Zaten hesabın var mı? Giriş Yap</a>
+        </div>
+      </form>
     </div>
-  </section>
+  </div>
 </body>
 </html>
