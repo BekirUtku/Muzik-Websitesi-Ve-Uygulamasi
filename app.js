@@ -555,9 +555,30 @@
   });
 
   // ---- Sayfaya özel bağlamalar (her geçişte yeniden) ----
+  // Oturum bilgisi (bir kez çekilir, sonra bellekten kullanılır)
+  let oturumSoz = null;
+  function oturumBilgisi() {
+    if (!oturumSoz) {
+      oturumSoz = fetch('oturum.php', { credentials: 'same-origin' })
+        .then(r => r.json())
+        .catch(() => ({ girisli: false, kullanici_adi: '', ad: '' }));
+    }
+    return oturumSoz;
+  }
+  // "Hoş geldin <kullanıcı adı> 👋"
+  function selamlamayiDoldur() {
+    const el = $('#hero-user');
+    if (!el) return;
+    oturumBilgisi().then(function (o) {
+      const el2 = $('#hero-user');
+      if (el2) el2.textContent = (o && o.girisli && o.kullanici_adi) ? ' ' + o.kullanici_adi : '';
+    });
+  }
+
   function bindPageUI() {
     const si = $('#search-icon'); if (si) si.innerHTML = ICON.search;
     ensureNavLink();
+    selamlamayiDoldur();
 
     const form = $('#search-form');
     if (form && !form._bound) {
