@@ -100,8 +100,9 @@
         document.getElementById('mine-count').textContent = d.listeler.length + ' liste';
         if (!d.listeler.length) { mine.innerHTML = '<div class="empty">Henüz listen yok. Yukarıdan oluştur.</div>'; return; }
         d.listeler.forEach(function(l){
-          var card = document.createElement('div');
+          var card = document.createElement('a');
           card.className = 'artist-card';
+          card.href = 'liste.php?id=' + l.id;   // SPA gezinmesi yakalar, müzik kesilmez
           card.style.cursor = 'pointer';
           card.innerHTML =
             '<div class="avatar" style="display:grid;place-items:center;background:var(--panel-2);color:var(--accent);">' +
@@ -110,12 +111,8 @@
             '<div class="name">'+esc(l.ad)+'</div>' +
             '<div class="role">'+l.adet+' şarkı</div>' +
             '<button class="btn-ghost del" style="margin-top:10px;padding:6px 14px;">Sil</button>';
-          card.addEventListener('click', function(e){
-            if (e.target.closest('.del')) return;
-            location.href = 'liste.php?id=' + l.id;
-          });
           card.querySelector('.del').addEventListener('click', function(e){
-            e.stopPropagation();
+            e.preventDefault(); e.stopPropagation();
             if (!confirm('"'+l.ad+'" listesini silmek istiyor musun?')) return;
             var fd = new FormData(); fd.append('action','sil'); fd.append('id', l.id);
             fetch('playlist.php', {method:'POST', body:fd}).then(function(r){return r.json();}).then(function(){ load(); });

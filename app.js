@@ -387,6 +387,9 @@
       document.body.appendChild(p);
       $('#queue-close').addEventListener('click', toggleQueue);
     }
+  }
+  // Navbar her sayfa geçişinde yenilendiği için ayrı tutuldu
+  function ensureNavLink() {
     const nav = document.querySelector('.nav-links');
     if (nav && !nav.querySelector('[data-listelerim]')) {
       const a = document.createElement('a'); a.href = 'listelerim.php'; a.textContent = 'Listelerim'; a.setAttribute('data-listelerim', '1');
@@ -409,17 +412,157 @@
       });
   }
 
-  // ---- Başlat ----
-  document.addEventListener('DOMContentLoaded', function () {
-    // İkonları yerleştir
+  // ===== Sayfa içi (SPA) gezinme — sayfa geçişinde müzik kesilmesin =====
+  // Bu ögeler sayfa değişse de KALIR (çalar, ses, paneller):
+  const KALICI = ['.player', '#audio-player', '#queue-panel', '#card-menu', '#pl-modal', '#aube-toast', '#spa-root'];
+  const kaliciMi = (el) => KALICI.some(sel => el.matches && el.matches(sel));
+
+  function spaRoot() {
+    let root = $('#spa-root');
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'spa-root';
+      const tasinacak = Array.prototype.slice.call(document.body.children)
+        .filter(el => !kaliciMi(el) && el.tagName !== 'SCRIPT');
+      document.body.insertBefore(root, document.body.firstChild);
+      tasinacak.forEach(el => root.appendChild(el));
+    }
+    return root;
+  }
+
+  let geziyor = false;
+  function navigate(url, push) {
+    if (geziyor) return;
+    geziyor = true;
+    fetch(url, { credentials: 'same-origin' })
+      .then(r => r.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const root = spaRoot();
+        root.innerHTML = '';
+        Array.prototype.slice.call(doc.body.children)
+          .filter(el => !kaliciMi(el) && el.tagName !== 'SCRIPT')
+          .forEach(el => root.appendChild(document.importNode(el, true)));
+
+        // body veri nitelikleri (sanatçı / çalma listesi sayfaları)
+        ['data-artist', 'data-playlist-id'].forEach(a => {
+          const v = doc.body.getAttribute(a);
+          if (v === null) document.body.removeAttribute(a); else document.body.setAttribute(a, v);
+        });
+        if (doc.title) document.title = doc.title;
+        if (push) history.pushState({}, '', url);
+        window.scrollTo(0, 0);
+
+        // Sayfaya özel inline script'leri çalıştır (profil, listelerim)
+        Array.prototype.slice.call(doc.body.querySelectorAll('script:not([src])')).forEach(s => {
+          const yeni = document.createElement('script');
+          yeni.textContent = s.textContent;
+          root.appendChild(yeni);
+        });
+
+        initPage();
+      })
+      .catch(() => { location.href = url; })  // sorun olursa normal gezinmeye düş
+      .then(() => { geziyor = false; });
+  }
+
+  function icLinkMi(a) {
+    if (!a) return false;
+    const href = a.getAttribute('href');
+    if (!href || href.charAt(0) === '#') return false;
+    if (/^(https?:|mailto:|tel:)/i.test(href)) return false;
+    if (a.target === '_blank' || a.hasAttribute('download')) return false;
+    // Oturum sayfaları tam yüklenmeli (çıkışta müzik de dursun)
+    if (/^(cikis|login|register)\.php/i.test(href)) return false;
+    return /\.(html|php)(\?.*)?$/i.test(href);
+  }
+
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!icLinkMi(a)) return;
+    e.preventDefault();
+    navigate(a.getAttribute('href'), true);
+  });
+  window.addEventListener('popstate', function () {
+    navigate(location.pathname.split('/').pop() + location.search, false);
+  });
+
+  // ---- Sayfaya özel bağlamalar (her geçişte yeniden) ----
+  function bindPageUI() {
+    const si = $('#search-icon'); if (si) si.innerHTML = ICON.search;
+    ensureNavLink();
+
+    const form = $('#search-form');
+    if (form && !form._bound) {
+      form._bound = 1;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const q = (new FormData(form).get('search') || '').toString().trim().toLowerCase();
+        if (!q) { renderTrend(SONGS); return; }
+        const filtered = SONGS.filter(s =>
+          (s.sarki_adi || '').toLowerCase().includes(q) || (s.sarkici || '').toLowerCase().includes(q));
+        renderTrend(filtered);
+        if (filtered.length) playSong(filtered[0].id);
+      });
+    }
+
+    const cta = $('#hero-cta');
+    if (cta && !cta._bound) {
+      cta._bound = 1;
+      cta.addEventListener('click', function () {
+        if (SONGS.length) { shuffle = true; const sb = $('#p-shuffle'); if (sb) sb.classList.add('on'); playNext(); }
+      });
+    }
+
+    // Navbar aktif link
+    const sayfa = location.pathname.split('/').pop() || 'anasayfaa.html';
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === sayfa);
+    });
+  }
+
+  // ---- Sayfa verisini yükle ----
+  function loadPageData() {
+    const plId = document.body.getAttribute('data-playlist-id');
+    if (plId) { loadPlaylistPage(plId); return; }
+
+    fetch('anasayfaveri.php')
+      .then(r => r.json())
+      .then(data => {
+        SONGS = Array.isArray(data) ? data : [];
+        const af = getArtistFilter();
+        const list = af
+          ? SONGS.filter(s => (s.sarkici || '').toLowerCase().includes(af.toLowerCase()))
+          : SONGS;
+
+        if (af) {
+          const nm = $('#artist-name'); if (nm) nm.textContent = af;
+          const av = $('#artist-avatar'); if (av) av.src = artistPhoto(af, list[0] && list[0].kapak);
+          document.title = af + ' — AUBE MUSIC';
+        }
+
+        renderArtists();
+        renderTrend(list);
+        renderRecent();
+        renderLiked();
+        highlightPlaying();
+      })
+      .catch(err => {
+        console.error('Veri alınamadı:', err);
+        const t = $('#trend-grid'); if (t) t.innerHTML = '<div class="empty">Veri alınamadı. Sunucu/veritabanı çalışıyor mu?</div>';
+      });
+  }
+
+  function initPage() { bindPageUI(); loadPageData(); }
+
+  // ---- Bir kez çalışır: çalar kalıcı olduğu için olayları tek sefer bağla ----
+  function bootOnce() {
     const set = (id, html) => { const el = $('#' + id); if (el) el.innerHTML = html; };
     set('p-prev', ICON.prev); set('p-next', ICON.next); set('p-shuffle', ICON.shuffle);
     set('p-play', ICON.play); set('p-like', ICON.heart);
-    const si = $('#search-icon'); if (si) si.innerHTML = ICON.search;
 
-    injectControls(); // tekrar, volume, kuyruk butonları + "Listelerim" linki
+    injectControls(); // tekrar, volume, kuyruk
 
-    // Çalar olayları
     if ($('#p-play')) $('#p-play').addEventListener('click', togglePlay);
     if ($('#p-next')) $('#p-next').addEventListener('click', playNext);
     if ($('#p-prev')) $('#p-prev').addEventListener('click', playPrev);
@@ -447,52 +590,12 @@
         if (audio.duration) audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
       });
     }
+  }
 
-    // Arama
-    const form = $('#search-form');
-    if (form) form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const q = (new FormData(form).get('search') || '').toString().trim().toLowerCase();
-      if (!q) { renderTrend(SONGS); return; }
-      const filtered = SONGS.filter(s =>
-        (s.sarki_adi || '').toLowerCase().includes(q) || (s.sarkici || '').toLowerCase().includes(q));
-      renderTrend(filtered);
-      if (filtered.length) playSong(filtered[0].id);
-    });
-
-    const cta = $('#hero-cta');
-    if (cta) cta.addEventListener('click', function () { if (SONGS.length) { shuffle = true; const sb = $('#p-shuffle'); if (sb) sb.classList.add('on'); playNext(); } });
-
-    // Çalma listesi sayfası (liste.php) ise şarkıları listeden yükle.
-    const plId = document.body.getAttribute('data-playlist-id');
-    if (plId) { loadPlaylistPage(plId); return; }
-
-    // Verileri çek
-    fetch('anasayfaveri.php')
-      .then(r => r.json())
-      .then(data => {
-        SONGS = Array.isArray(data) ? data : [];
-        // Sanatçı sayfası ise sadece o sanatçının şarkılarını göster.
-        const af = getArtistFilter();
-        const list = af
-          ? SONGS.filter(s => (s.sarkici || '').toLowerCase().includes(af.toLowerCase()))
-          : SONGS;
-
-        // Sanatçı sayfası başlığı/foto (jenerik sanatci.html için)
-        if (af) {
-          const nm = $('#artist-name'); if (nm) nm.textContent = af;
-          const av = $('#artist-avatar'); if (av) av.src = artistPhoto(af, list[0] && list[0].kapak);
-          document.title = af + ' — AUBE MUSIC';
-        }
-
-        renderArtists();   // Sanatçılar listesi (varsa)
-        renderTrend(list);
-        renderRecent();
-        renderLiked();
-      })
-      .catch(err => {
-        console.error('Veri alınamadı:', err);
-        const t = $('#trend-grid'); if (t) t.innerHTML = '<div class="empty">Veri alınamadı. Sunucu/veritabanı çalışıyor mu?</div>';
-      });
+  // ---- Başlat ----
+  document.addEventListener('DOMContentLoaded', function () {
+    spaRoot();   // içeriği kalıcı kabuktan ayır
+    bootOnce();
+    initPage();
   });
 })();

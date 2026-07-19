@@ -169,8 +169,13 @@ function g($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
       document.getElementById('stat-recent').textContent = recent;
     }
     stats();
-    // Beğeni değişince (aynı sekmede) güncellensin diye periyodik tazele
-    setInterval(stats, 1500);
+    // Beğeni değişince (aynı sekmede) güncellensin diye periyodik tazele.
+    // Sayfa içi gezinmede tekrar çalıştığı için önceki zamanlayıcıyı temizle.
+    if (window.__profilStatsTimer) clearInterval(window.__profilStatsTimer);
+    window.__profilStatsTimer = setInterval(function () {
+      if (!document.getElementById('stat-likes')) { clearInterval(window.__profilStatsTimer); return; }
+      stats();
+    }, 1500);
 
     var modal = document.getElementById('edit-modal');
     var msg = document.getElementById('form-msg');
