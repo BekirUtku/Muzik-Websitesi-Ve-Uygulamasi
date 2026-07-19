@@ -82,7 +82,7 @@
       card.className = 'artist-card';
       card.href = 'sanatci.html?ad=' + encodeURIComponent(a.name);
       card.innerHTML =
-        '<img class="avatar" src="' + esc(artistPhoto(a.name, a.cover)) + '" alt="" loading="lazy">' +
+        '<img class="avatar" src="' + esc(artistPhoto(a.name, a.cover)) + '" alt="" loading="lazy" decoding="async">' +
         '<div class="name">' + esc(a.name) + '</div>' +
         '<div class="role">' + a.count + ' şarkı</div>';
       cont.appendChild(card);
@@ -120,7 +120,7 @@
     if (String(song.id) === String(curId)) card.classList.add('playing');
     card.innerHTML =
       '<div class="cover">' +
-        '<img src="' + esc(song.kapak) + '" alt="" loading="lazy">' +
+        '<img src="' + esc(song.kapak) + '" alt="" loading="lazy" decoding="async">' +
         '<button class="like-btn' + (isLiked(song.id) ? ' liked' : '') + '" title="Beğen">' + ICON.heart + '</button>' +
         '<button class="more-btn" title="Daha fazla">' + ICON.more + '</button>' +
         '<button class="play-ov" title="Çal">' + ICON.play + '</button>' +
@@ -594,13 +594,17 @@
         if (repeatMode === 'one') { audio.currentTime = 0; audio.play(); return; }
         playNext();
       });
+      // İlerleme çubuğunu saniyede en fazla bir kez güncelle (gereksiz DOM yazımı olmasın)
+      let sonSaniye = -1;
       audio.addEventListener('timeupdate', function () {
+        if (!audio.duration) return;
+        const sn = Math.floor(audio.currentTime);
+        if (sn === sonSaniye) return;
+        sonSaniye = sn;
         const fill = $('#p-fill'), cur = $('#p-cur'), dur = $('#p-dur');
-        if (audio.duration) {
-          if (fill) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
-          if (cur) cur.textContent = fmt(audio.currentTime);
-          if (dur) dur.textContent = fmt(audio.duration);
-        }
+        if (fill) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        if (cur) cur.textContent = fmt(audio.currentTime);
+        if (dur) dur.textContent = fmt(audio.duration);
       });
       const bar = $('#p-bar');
       if (bar) bar.addEventListener('click', function (e) {
