@@ -279,6 +279,12 @@
     };
     add('Sıraya ekle', ICON.plusQueue, () => addToQueue(songId));
     add('Çalma listesine ekle', ICON.plusList, () => openPlaylistModal(songId));
+    // Bir çalma listesi sayfasındaysak "listeden kaldır" seçeneği de göster
+    const plId = document.body.getAttribute('data-playlist-id');
+    if (plId) {
+      const sep = document.createElement('div'); sep.className = 'sep'; menu.appendChild(sep);
+      add('Listeden kaldır', ICON.trash, () => removeFromPlaylist(plId, songId));
+    }
     const r = btn.getBoundingClientRect();
     menu.style.top = (window.scrollY + r.bottom + 6) + 'px';
     menu.style.left = (window.scrollX + Math.min(r.left, window.innerWidth - 210)) + 'px';
@@ -328,6 +334,18 @@
       });
     };
   }
+  function removeFromPlaylist(listeId, songId) {
+    const s = byId(songId);
+    if (!confirm('"' + (s ? s.sarki_adi : 'Şarkı') + '" listeden kaldırılsın mı?')) return;
+    const fd = new FormData();
+    fd.append('action', 'cikar'); fd.append('liste_id', listeId); fd.append('muzik_id', songId);
+    fetch('playlist.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+      if (!d.ok) { toast(d.error || 'Hata'); return; }
+      toast('Listeden kaldırıldı');
+      loadPlaylistPage(listeId);   // listeyi tazele
+    });
+  }
+
   function addSongToPlaylist(listeId, songId) {
     const fd = new FormData(); fd.append('action', 'ekle'); fd.append('liste_id', listeId); fd.append('muzik_id', songId);
     fetch('playlist.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
