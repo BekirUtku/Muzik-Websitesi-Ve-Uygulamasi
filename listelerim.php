@@ -113,9 +113,15 @@
             '<button class="btn-ghost del" style="margin-top:10px;padding:6px 14px;">Sil</button>';
           card.querySelector('.del').addEventListener('click', function(e){
             e.preventDefault(); e.stopPropagation();
-            if (!confirm('"'+l.ad+'" listesini silmek istiyor musun?')) return;
-            var fd = new FormData(); fd.append('action','sil'); fd.append('id', l.id);
-            fetch('playlist.php', {method:'POST', body:fd}).then(function(r){return r.json();}).then(function(){ load(); });
+            var sor = window.aubeConfirm
+              ? window.aubeConfirm('"'+l.ad+'" listesi ve içindeki şarkı kayıtları silinecek.',
+                  { baslik: 'Listeyi sil', onay: 'Sil', tehlike: true })
+              : Promise.resolve(confirm('"'+l.ad+'" listesini silmek istiyor musun?'));
+            sor.then(function(onaylandi){
+              if (!onaylandi) return;
+              var fd = new FormData(); fd.append('action','sil'); fd.append('id', l.id);
+              fetch('playlist.php', {method:'POST', body:fd}).then(function(r){return r.json();}).then(function(){ load(); });
+            });
           });
           mine.appendChild(card);
         });

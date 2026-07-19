@@ -245,6 +245,51 @@
     clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 1800);
   }
 
+  // ---- Site içi onay penceresi (tarayıcının confirm'i yerine) ----
+  function aubeConfirm(mesaj, secenek) {
+    secenek = secenek || {};
+    return new Promise(function (resolve) {
+      let ov = $('#confirm-modal');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'confirm-modal'; ov.className = 'modal-overlay';
+        ov.innerHTML =
+          '<div class="modal" style="max-width:400px">' +
+            '<div class="modal-head"><h3 id="cf-title">Emin misin?</h3><button class="x" id="cf-x">&times;</button></div>' +
+            '<p class="sub" id="cf-msg"></p>' +
+            '<div class="btn-row">' +
+              '<button class="btn-ghost" id="cf-no">Vazgeç</button>' +
+              '<button class="btn-primary" id="cf-yes">Evet</button>' +
+            '</div>' +
+          '</div>';
+        document.body.appendChild(ov);
+      }
+      $('#cf-title').textContent = secenek.baslik || 'Emin misin?';
+      $('#cf-msg').textContent = mesaj;
+      $('#cf-yes').textContent = secenek.onay || 'Evet';
+      $('#cf-no').textContent = secenek.vazgec || 'Vazgeç';
+      $('#cf-yes').className = 'btn-primary' + (secenek.tehlike ? ' btn-danger' : '');
+      ov.classList.add('open');
+
+      function kapat(sonuc) {
+        ov.classList.remove('open');
+        document.removeEventListener('keydown', tus);
+        resolve(sonuc);
+      }
+      function tus(e) {
+        if (e.key === 'Escape') kapat(false);
+        else if (e.key === 'Enter') kapat(true);
+      }
+      $('#cf-yes').onclick = function () { kapat(true); };
+      $('#cf-no').onclick = function () { kapat(false); };
+      $('#cf-x').onclick = function () { kapat(false); };
+      ov.onclick = function (e) { if (e.target === ov) kapat(false); };
+      document.addEventListener('keydown', tus);
+      setTimeout(function () { const y = $('#cf-yes'); if (y) y.focus(); }, 50);
+    });
+  }
+  window.aubeConfirm = aubeConfirm;   // sayfa içi script'ler de kullanabilsin
+
   // ---- Kuyruk ----
   function addToQueue(id) { QUEUE.push(String(id)); renderQueue(); const s = byId(id); toast((s ? s.sarki_adi : 'Şarkı') + ' kuyruğa eklendi'); }
   function renderQueue() {
@@ -336,13 +381,17 @@
   }
   function removeFromPlaylist(listeId, songId) {
     const s = byId(songId);
-    if (!confirm('"' + (s ? s.sarki_adi : 'Şarkı') + '" listeden kaldırılsın mı?')) return;
-    const fd = new FormData();
-    fd.append('action', 'cikar'); fd.append('liste_id', listeId); fd.append('muzik_id', songId);
-    fetch('playlist.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
-      if (!d.ok) { toast(d.error || 'Hata'); return; }
-      toast('Listeden kaldırıldı');
-      loadPlaylistPage(listeId);   // listeyi tazele
+    aubeConfirm('"' + (s ? s.sarki_adi : 'Şarkı') + '" bu çalma listesinden kaldırılacak.',
+      { baslik: 'Listeden kaldır', onay: 'Kaldır', tehlike: true }
+    ).then(function (onaylandi) {
+      if (!onaylandi) return;
+      const fd = new FormData();
+      fd.append('action', 'cikar'); fd.append('liste_id', listeId); fd.append('muzik_id', songId);
+      fetch('playlist.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+        if (!d.ok) { toast(d.error || 'Hata'); return; }
+        toast('Listeden kaldırıldı');
+        loadPlaylistPage(listeId);   // listeyi tazele
+      });
     });
   }
 
