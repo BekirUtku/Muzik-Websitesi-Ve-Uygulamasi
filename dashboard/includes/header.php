@@ -1,26 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../assets/css/tailwind.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-    <script src="../assets/js/script.js" defer></script>
-    <title>Music Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yönetim Paneli — AUBE MUSIC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="../assets/css/dashboard.css" rel="stylesheet">
+  <script src="../assets/js/script.js" defer></script>
 </head>
-
-<body class="flex">
-
-    <?php
-    include 'sidebar.php'
-    ?>
-
-
-    <?php
-    //include 'footer.php'
-    ?>
-</body>
-
-</html>
+<body class="dash">
+  <?php include __DIR__ . '/sidebar.php'; ?>
+  <main class="dash-main">

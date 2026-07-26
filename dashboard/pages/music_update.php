@@ -1,61 +1,63 @@
 <?php
-include '../includes/header.php';
-include '../config/database.php';
+include __DIR__ . '/../config/database.php';
 
-// Müzik ID'sini al
-$music_id = $_GET['id']; // Örnek olarak URL'den ID'yi alıyoruz, gerçek kullanıma göre değiştirebilirsiniz.
+// SQL injection'a kapalı: id tam sayıya çevrilir + prepared statement
+$music_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$stmt = $db->prepare("SELECT * FROM muzik WHERE id = ?");
+$stmt->bind_param('i', $music_id);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-// Veritabanından ilgili müziği çek
-$query = "SELECT * FROM muzik WHERE id = $music_id";
-$result = $db->query($query);
-$row = $result->fetch_assoc(); // Verileri bir dizi olarak alıyoruz
+include __DIR__ . '/../includes/header.php';
+function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 ?>
+<div class="dash-head">
+  <div>
+    <h1>Müzik Güncelle</h1>
+    <p class="sub"><?= $row ? h($row['sarki_adi']) : 'Kayıt bulunamadı' ?></p>
+  </div>
+  <a href="music_list.php" class="btn btn-ghost">← Listeye dön</a>
+</div>
 
-<body>
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Müzik Güncelle</h1>
-        <form action="../update_music.php" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-4">
-            <input type="hidden" name="music_id" value="<?php echo $row['id']; ?>">
-
-            <div class="flex flex-col">
-                <label for="song_title">Şarkı Adı:</label>
-                <input type="text" name="sarki_adi" value="<?php echo $row['sarki_adi']; ?>" required class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex flex-col">
-                <label for="artist">Sanatçı:</label>
-                <input type="text" name="sarkici" value="<?php echo $row['sarkici']; ?>" required class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex flex-col">
-                <label for="album">Albüm:</label>
-                <input type="text" name="album" value="<?php echo $row['album']; ?>" class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex flex-col">
-                <label for="genre">Tür:</label>
-                <input type="text" name="turu" value="<?php echo $row['turu']; ?>" class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex flex-col">
-                <label for="picture">Resim:</label>
-                <input type="file" name="kapak" accept="image/*" class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex flex-col">
-                <label for="file_path">Dosya:</label>
-                <input type="file" name="yol" accept="audio/*" class="p-2 border border-gray-300 rounded">
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Güncelle</button>
-            </div>
-        </form>
+<?php if (!$row): ?>
+  <div class="card">Bu ID ile bir şarkı bulunamadı.</div>
+<?php else: ?>
+<div class="card" style="max-width:680px">
+  <form action="../update_music.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="music_id" value="<?= (int)$row['id'] ?>">
+    <div class="form-grid">
+      <div class="field">
+        <label>Şarkı Adı</label>
+        <input type="text" name="sarki_adi" value="<?= h($row['sarki_adi']) ?>" required>
+      </div>
+      <div class="field">
+        <label>Sanatçı</label>
+        <input type="text" name="sarkici" value="<?= h($row['sarkici']) ?>" required>
+      </div>
+      <div class="field">
+        <label>Albüm</label>
+        <input type="text" name="album" value="<?= h($row['album']) ?>">
+      </div>
+      <div class="field">
+        <label>Tür</label>
+        <input type="text" name="turu" value="<?= h($row['turu']) ?>">
+      </div>
     </div>
-</body>
+    <div class="field">
+      <label>Kapak Görseli (değiştirmek istersen seç)</label>
+      <input type="file" name="kapak" accept="image/*">
+    </div>
+    <div class="field">
+      <label>Müzik Dosyası (değiştirmek istersen seç)</label>
+      <input type="file" name="yol" accept="audio/*">
+    </div>
+    <div class="form-actions">
+      <a href="music_list.php" class="btn btn-ghost">Vazgeç</a>
+      <button type="submit" class="btn btn-info">Güncelle</button>
+    </div>
+  </form>
+</div>
+<?php endif; ?>
 
-</html>
-
-<?php
-$db->close();
-?>
+<?php include __DIR__ . '/../includes/footer.php'; $db->close(); ?>
