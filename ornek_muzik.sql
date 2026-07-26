@@ -1,0 +1,35 @@
+-- Örnek müzik verileri (repodaki gerçek dosya adlarıyla eşleşir)
+USE spotify;
+SET NAMES utf8mb4;
+TRUNCATE TABLE muzik;  -- tabloyu sıfırla, id 1'den başlasın
+INSERT INTO muzik (id, sarki_adi, sarkici, album, turu, yol, kapak) VALUES
+(1, 'Ayrı Gitme', 'Aleyna Tilki', NULL, NULL, 'muzikler/Aleyna Tilki - Ayrı Gitme.mp3', 'kapaklar/Ayrı_Gitme.jpg'),
+(2, 'Anıları Yak', 'Burcu Güneş', NULL, NULL, 'muzikler/Burcu Güneş - Anıları Yak.mp3', 'kapaklar/Anıları_Yak.jpg'),
+(3, 'Ben Sana Gelemem', 'Mela Bedel', NULL, NULL, 'muzikler/Mela Bedel - Ben Sana Gelemem.mp3', 'kapaklar/Ben_Sana_Gelemem.jpg'),
+(4, 'Beyin Lazım', 'Bilinmeyen', NULL, NULL, 'muzikler/Beyin Lazım.mp3', 'kapaklar/Beyin_Lazım.jpg'),
+(5, 'Bir Gün Ol Yerimde', 'Doğu Swag & Aleyna Tilki', NULL, NULL, 'muzikler/Doğu Swag & Aleyna Tilki - Bir Gün Ol Yerimde (Prod. By Büken).mp3', 'kapaklar/Bir_Gün_Ol_Yerimde.jpg'),
+(6, 'Bir İmkansız Var', 'Emrah Karaduman & Merve Özbey', NULL, NULL, 'muzikler/Emrah Karaduman & Merve Özbey - Bir İmkansız Var.mp3', 'kapaklar/Bir_imkansız_var.jpg'),
+(7, 'Bir Şehri Sevmek', 'Mavi Gri x Ozan Bayraşa x Simge', NULL, NULL, 'muzikler/Mavi Gri x Ozan Bayraşa x Simge - Bir Şehri Sevmek.mp3', 'kapaklar/Bir_Şehri_Sevmek.jpg'),
+(8, 'Diyardan Diyara', 'Cakal & Arem Özgüç & Arman Aydın', NULL, NULL, 'muzikler/Cakal & Arem Ozguc & Arman Aydin  - Diyardan Diyara ( Official Music Video ).mp3', 'kapaklar/Diyardan_Diyara.jpg'),
+(9, 'Gülü Sevdim Dikeni Battı', 'Melis Fis', NULL, NULL, 'muzikler/Melis Fis - Gülü Sevdim Dikeni Battı (Official Video).mp3', 'kapaklar/Gülü_Sevdim_Dikeni_Battı.jpg'),
+(10, 'Kapak Olsun', 'Defkhan & NELLIE & Fredo', NULL, NULL, 'muzikler/Defkhan & NELLIE & Fredo - Kapak Olsun.mp3', 'kapaklar/Kapak_olsun.jpg'),
+(11, 'Konum Gizli', 'MERO feat. Murda', NULL, NULL, 'muzikler/MERO feat. Murda - Konum Gizli (prod. by Spanker).mp3', 'kapaklar/Konum_Gizli.jpg'),
+(12, 'Lan', 'Zeynep Bastık', NULL, NULL, 'muzikler/Lan - Zeynep Bastık _ Lyric Video.mp3', 'kapaklar/Lan.jpg'),
+(13, 'Manolya', 'Burak Bulut & Kurtuluş Kuş', NULL, NULL, 'muzikler/Burak Bulut & Kurtuluş Kuş - Manolya.mp3', 'kapaklar/Manolya.jpg'),
+(14, 'Olmuşum Leyla', 'Buray', NULL, NULL, 'muzikler/Buray - Olmuşum Leyla.mp3', 'kapaklar/Olmuşum_Leyla.jpg'),
+(15, 'Renklensin', 'Reynmen', NULL, NULL, 'muzikler/Reynmen - Renklensin (Official Premiere Video).mp3', 'kapaklar/Renklensin.jpg'),
+(16, 'Rüzgar', 'Bilal Hancı & Mustafa Ceceli', NULL, NULL, 'muzikler/Bilal Hancı & Mustafa Ceceli - Rüzgar.mp3', 'kapaklar/Rüzgar.jpg'),
+(17, 'Sahi', 'Merve Özbey', NULL, NULL, 'muzikler/Merve Özbey - Sahi.mp3', 'kapaklar/Sahi.jpg'),
+(18, 'Sahte', 'Hande Yener', NULL, NULL, 'muzikler/Hande Yener - Sahte (Official Video).mp3', 'kapaklar/Sahte.jpg'),
+(19, 'Tanrım Reva Mı', 'Semicenk', NULL, NULL, 'muzikler/Semicenk - Tanrım Reva Mı.mp3', 'kapaklar/Tanrım_Reva_Mı.jpg'),
+(20, 'Tavrına Hayran', 'Bilinmeyen', NULL, NULL, 'muzikler/Tavrına Hayran.mp3', 'kapaklar/Tavrına_Hayran.jpg'),
+(21, 'Tek Başıma', 'Semicenk', NULL, NULL, 'muzikler/Semicenk - Tek Başıma.mp3', 'kapaklar/Tek_Başıma.jpg'),
+(22, 'Uçurum', 'Mehmet Elmas', NULL, NULL, 'muzikler/Mehmet Elmas - Uçurum.mp3', 'kapaklar/Uçurum.jpg'),
+(23, 'Yakışıklı', 'KÖFN x Simge', NULL, NULL, 'muzikler/KÖFN X Simge - Yakışıklı (Official Video).mp3', 'kapaklar/Yakışıklı.jpg'),
+(24, 'Yangın', 'Hande Ünsal', NULL, NULL, 'muzikler/Hande Ünsal - Yangın.mp3', 'kapaklar/Yangın.jpg'),
+(25, 'Yansıma', 'Derya Uluğ & Asil Gök', NULL, NULL, 'muzikler/Derya Uluğ & Asil Gök - Yansıma.mp3', 'kapaklar/Yansıma.jpg'),
+(26, 'Yatıya', 'Melis Kar', NULL, NULL, 'muzikler/Melis Kar - Yatıya.mp3', 'kapaklar/Yatıya.jpg'),
+(27, 'Yaz Gülü', 'İrem Derici', NULL, NULL, 'muzikler/İrem Derici - Yaz Gülü.mp3', 'kapaklar/Yaz_Gülü.jpg'),
+(28, 'Ölü', 'Contra', NULL, NULL, 'muzikler/Contra - Ölü.mp3', 'kapaklar/Ölü.jpg'),
+(29, 'İmdadım', 'Zara & Eypio', NULL, NULL, 'muzikler/Zara & Eypio - İmdadım.mp3', 'kapaklar/İmdadım.jpg'),
+(30, 'İntihar Süsü', 'Bilinmeyen', NULL, NULL, 'muzikler/İntihar Süsü.mp3', 'kapaklar/İntihar_Süsü.jpg');
