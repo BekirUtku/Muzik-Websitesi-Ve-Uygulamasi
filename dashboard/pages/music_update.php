@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../config/database.php';
+require __DIR__ . '/../admin_kontrol.php';   // yönetici koruması + $db
 
 // SQL injection'a kapalı: id tam sayıya çevrilir + prepared statement
 $music_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;

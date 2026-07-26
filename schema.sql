@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS kullanicilar (
     soyad          VARCHAR(50)  NOT NULL,
     email          VARCHAR(120) NOT NULL,
     sifre          VARCHAR(255) NOT NULL,          -- password_hash() çıktısı
+    yonetici       TINYINT(1)   NOT NULL DEFAULT 0, -- 1 = admin paneli erişimi
     olusturma      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_kullanici_adi (kullanici_adi),
     UNIQUE KEY uq_email (email)

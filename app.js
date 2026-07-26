@@ -565,6 +565,20 @@
     }
     return oturumSoz;
   }
+  // Yönetici ise navbar'a "Yönetim Paneli" linki ekle
+  function ensureAdminLink() {
+    oturumBilgisi().then(function (o) {
+      if (!o || !o.yonetici) return;
+      const nav = document.querySelector('.nav-links');
+      if (!nav || nav.querySelector('[data-admin]')) return;
+      const a = document.createElement('a');
+      a.href = 'dashboard/';
+      a.textContent = 'Yönetim Paneli';
+      a.setAttribute('data-admin', '1');
+      nav.appendChild(a);
+    });
+  }
+
   // "Hoş geldin <kullanıcı adı> 👋"
   function selamlamayiDoldur() {
     const el = $('#hero-user');
@@ -578,6 +592,7 @@
   function bindPageUI() {
     const si = $('#search-icon'); if (si) si.innerHTML = ICON.search;
     ensureNavLink();
+    ensureAdminLink();
     selamlamayiDoldur();
 
     const form = $('#search-form');

@@ -1,5 +1,5 @@
 <?php
-include './config/database.php';
+require_once __DIR__ . '/admin_kontrol.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $music_id = $_POST['music_id'];

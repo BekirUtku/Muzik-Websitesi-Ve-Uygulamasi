@@ -1,4 +1,7 @@
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php
+require __DIR__ . '/../admin_kontrol.php';   // yönetici koruması
+include __DIR__ . '/../includes/header.php';
+?>
 <div class="dash-head">
   <div>
     <h1>Müzik Ekle</h1>

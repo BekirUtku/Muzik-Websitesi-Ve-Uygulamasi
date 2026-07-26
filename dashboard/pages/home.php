@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../config/database.php';
+require __DIR__ . '/../admin_kontrol.php';   // yönetici koruması + $db
 
 $artist_count = $db->query("SELECT COUNT(DISTINCT sarkici) AS c FROM muzik")->fetch_assoc()['c'];
 $song_count   = $db->query("SELECT COUNT(id) AS c FROM muzik")->fetch_assoc()['c'];

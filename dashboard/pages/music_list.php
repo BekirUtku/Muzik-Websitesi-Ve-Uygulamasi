@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../config/database.php';
+require __DIR__ . '/../admin_kontrol.php';   // yönetici koruması + $db
 $result = $db->query("SELECT id, sarki_adi, turu, yol, album, sarkici, kapak FROM muzik ORDER BY id");
 include __DIR__ . '/../includes/header.php';
 function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
