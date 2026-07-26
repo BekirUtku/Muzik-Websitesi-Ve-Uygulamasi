@@ -1,7 +1,6 @@
 -- Örnek müzik verileri (repodaki gerçek dosya adlarıyla eşleşir)
 USE spotify;
 SET NAMES utf8mb4;
-TRUNCATE TABLE muzik;  -- tabloyu sıfırla, id 1'den başlasın
 INSERT INTO muzik (id, sarki_adi, sarkici, album, turu, yol, kapak) VALUES
 (1, 'Ayrı Gitme', 'Aleyna Tilki', NULL, NULL, 'muzikler/Aleyna Tilki - Ayrı Gitme.mp3', 'kapaklar/Ayrı_Gitme.jpg'),
 (2, 'Anıları Yak', 'Burcu Güneş', NULL, NULL, 'muzikler/Burcu Güneş - Anıları Yak.mp3', 'kapaklar/Anıları_Yak.jpg'),
